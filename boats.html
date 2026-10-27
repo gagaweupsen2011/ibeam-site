@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>I-Beam · Лодки сообщества</title>
+<meta name="theme-color" content="#454249">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Roboto+Slab:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap page">
+    <section class="row" style="justify-content:space-between;align-items:flex-end;gap:24px">
+      <div class="stack" style="flex:1 1 340px;min-width:0;gap:14px">
+        <h1 class="page-title">Лодки сообщества</h1>
+        <p class="lead">Выкладывай фото своих лодок, ставь оценки от 1 до 10 и пиши комментарии. Каждую неделю лучшие 5 по оценкам попадают в топ.</p>
+      </div>
+      <button class="btn btn-dark" id="upload-btn" type="button" style="min-height:52px;font-size:17px">Добавить фото лодки</button>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Топ-5 недели</h2>
+      <p class="note">Рейтинг за последние 7 дней, обновляется по ходу недели. Итог фиксируется в воскресенье в 06:00 по Москве.</p>
+      <div class="grid-5" id="top5"><p class="note">Загрузка…</p></div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Все лодки</h2>
+      <div class="grid" id="boats-grid"><p class="note">Загрузка…</p></div>
+    </section>
+
+    <section id="rules" class="card pad" style="max-width:760px">
+      <h2 class="card-title" style="font-size:24px">Правила загрузки</h2>
+      <ul style="margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px">
+        <li>Только фото лодок из Build a Boat.</li>
+        <li>Без насилия, контента 18+ и оскорблений.</li>
+        <li>Без рекламы и ссылок на сторонние сайты.</li>
+        <li>Форматы JPG, PNG, WebP. Фото сжимается автоматически, размер до 5 МБ.</li>
+        <li>Первые 3 фото нового участника проходят проверку, дальше публикуются сразу.</li>
+        <li>Если на фото пожаловались несколько человек, оно скрывается до проверки.</li>
+        <li>Не больше 5 фото в сутки.</li>
+      </ul>
+      <p class="note">За нарушение: предупреждение, затем блокировка аккаунта. Для награды администратор связывается с победителем по почте аккаунта.</p>
+    </section>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+<script src="js/boats.js"></script>
+</body>
+</html>

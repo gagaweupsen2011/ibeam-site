@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>I-Beam</title>
+<meta name="description" content="I-Beam: Build a Boat, схемы лодок и сообщество игроков.">
+<meta name="theme-color" content="#454249">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Roboto+Slab:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap page">
+    <section class="hero">
+      <div class="hero-text">
+        <span class="eyebrow">Игровой канал</span>
+        <h1>Build a Boat и разработка игры</h1>
+        <p class="lead">Видео, схемы лодок и сообщество I-Beam в одном месте.</p>
+        <div class="row">
+          <a class="btn btn-dark" id="cta-register" href="login.html#register">Создать аккаунт</a>
+          <a class="btn btn-outline" href="boats.html">Смотреть лодки</a>
+        </div>
+      </div>
+      <div class="hero-logo">
+        <svg role="img" aria-label="Логотип I-Beam" viewBox="0 0 100 100" style="display:block;width:100%;max-width:280px;aspect-ratio:1">
+          <polygon points="50,6.7 93.3,50 50,93.3 6.7,50" fill="#454249"/>
+          <rect x="19.4" y="19.4" width="61.2" height="61.2" fill="#5E5B68"/>
+          <path d="M30.3 30.7h39.4v8.9H61.2v20.7h8.5v9H30.3v-9h8.5V39.6h-8.5z" fill="#454249"/>
+        </svg>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Разделы</h2>
+      <div class="grid">
+        <article class="card pad" style="align-items:flex-start">
+          <span class="pill pill-lav">Скоро</span>
+          <h3 class="card-title" style="font-size:24px">Build a Boat</h3>
+          <p style="color:var(--soft)">Схемы лодок и туториалы: как построить корабль шаг за шагом.</p>
+        </article>
+        <article class="card pad" style="align-items:flex-start">
+          <h3 class="card-title" style="font-size:24px">Лодки сообщества</h3>
+          <p style="color:var(--soft)">Выкладывай фото своих лодок, оценивай чужие от 1 до 10 и пиши комментарии. Каждую неделю выбираем топ-5 по оценкам.</p>
+          <div class="row">
+            <a class="btn btn-fill" href="boats.html">Смотреть лодки</a>
+            <a class="btn btn-ghost" href="boats.html#upload">Добавить фото</a>
+          </div>
+        </article>
+        <article class="card pad" style="align-items:flex-start">
+          <h3 class="card-title" style="font-size:24px">Лучшие работы</h3>
+          <p style="color:var(--soft)">Из топ-5 каждую неделю выбирается одна лучшая лодка. Она получает особую рамку и награду.</p>
+          <a class="btn btn-ghost" href="best.html">Смотреть лучшие</a>
+        </article>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script>
+(async function () {
+  var st = await window.IB.init('home');
+  if (st.user) {
+    var b = document.getElementById('cta-register');
+    if (b) b.hidden = true;
+  }
+})();
+</script>
+</body>
+</html>

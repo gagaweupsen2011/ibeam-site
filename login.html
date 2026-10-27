@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>I-Beam · Вход и регистрация</title>
+<meta name="theme-color" content="#454249">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Roboto+Slab:wght@700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/app.js"></script>
+</head>
+<body>
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap page">
+    <div class="auth-wrap">
+      <section class="card auth-card" style="gap:20px">
+
+        <div class="tabs" role="tablist" aria-label="Вход или регистрация" id="tabs">
+          <button class="tab" type="button" role="tab" id="tab-register" aria-selected="true">Регистрация</button>
+          <button class="tab" type="button" role="tab" id="tab-login" aria-selected="false">Вход</button>
+        </div>
+
+        <h1 id="auth-title" style="font-size:28px;font-weight:700">Создать аккаунт</h1>
+
+        <form id="auth-form" class="stack" style="gap:16px" novalidate>
+          <div class="field" id="f-nick">
+            <label class="lbl" for="nick">Ник</label>
+            <input class="inp" id="nick" type="text" placeholder="ник" autocomplete="username" maxlength="20" autocapitalize="none" spellcheck="false">
+            <span class="muted">3-20 символов: латиница, цифры и _. Он будет виден всем как @ник.</span>
+          </div>
+          <div class="field">
+            <label class="lbl" for="email">Почта</label>
+            <input class="inp" id="email" type="email" placeholder="почта@gmail.com" autocomplete="email">
+          </div>
+          <div class="field">
+            <label class="lbl" for="pass">Пароль</label>
+            <div class="row" style="flex-wrap:nowrap;gap:8px">
+              <input class="inp" id="pass" type="password" placeholder="Минимум 8 символов" autocomplete="new-password">
+              <button class="btn btn-ghost" type="button" id="show-pass" style="min-width:108px;padding:0 12px;height:50px">Показать</button>
+            </div>
+          </div>
+          <div id="auth-msg" role="status" hidden></div>
+          <button class="btn btn-fill" type="submit" id="submit" style="width:100%;min-height:50px;font-size:17px">Зарегистрироваться</button>
+        </form>
+
+        <form id="reset-form" class="stack" style="gap:16px" hidden>
+          <div class="field">
+            <label class="lbl" for="newpass">Новый пароль</label>
+            <input class="inp" id="newpass" type="password" placeholder="Минимум 8 символов" autocomplete="new-password">
+          </div>
+          <div id="reset-msg" role="status" hidden></div>
+          <button class="btn btn-fill" type="submit" style="width:100%;min-height:50px">Сохранить пароль</button>
+        </form>
+
+        <div id="alt" class="stack" style="gap:20px">
+          <div class="or">или</div>
+          <button class="btn btn-ghost" type="button" id="google" style="width:100%;min-height:50px;gap:12px">
+            <span class="google-mark" aria-hidden="true">G</span> Продолжить через Google
+          </button>
+          <div class="row" style="justify-content:space-between;gap:4px 16px">
+            <a class="linkbtn" href="#support">Поддержка</a>
+            <button class="linkbtn" type="button" id="forgot" hidden>Забыли пароль?</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+<script src="js/login.js"></script>
+</body>
+</html>

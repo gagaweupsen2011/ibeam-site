@@ -87,8 +87,47 @@
     return dlg;
   }
 
+  /* Сжатие фото на устройстве: убирает данные съёмки (EXIF) и ужимает размер */
+  async function prepareImage(file) {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error('Подходят только JPG, PNG или WebP.');
+    if (file.size > 20 * 1024 * 1024) throw new Error('Файл слишком большой. Выбери фото до 20 МБ.');
+    var bmp = await createImageBitmap(file);
+    var k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+    var c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(bmp.width * k));
+    c.height = Math.max(1, Math.round(bmp.height * k));
+    var ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(bmp, 0, 0, c.width, c.height);
+    var blob = await new Promise(function (res) { c.toBlob(res, 'image/jpeg', 0.85); });
+    if (!blob || blob.size > 5 * 1024 * 1024) throw new Error('Не удалось сжать фото до 5 МБ. Выбери другое.');
+    return blob;
+  }
+
+  function confirmBox(text, yes) {
+    return new Promise(function (resolve) {
+      var done = false;
+      var dlg = modal('Подтверди',
+        h('p', { text: text }),
+        h('div', { class: 'row', style: 'margin-top:16px' },
+          h('button', { class: 'btn btn-fill', type: 'button', text: yes || 'Да', onclick: function () { done = true; resolve(true); dlg.close(); } }),
+          h('button', { class: 'btn btn-ghost', type: 'button', text: 'Отмена', onclick: function () { dlg.close(); } })));
+      dlg.addEventListener('close', function () { if (!done) resolve(false); });
+    });
+  }
+
+  /* Достаёт 11-значный код ролика из ссылки YouTube (watch, youtu.be, shorts, embed, live) */
+  function ytId(url) {
+    var u = String(url || '').trim();
+    if (!u) return null;
+    var m = u.match(/^(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:[?&#\/].*)?$/);
+    return m ? m[1] : null;
+  }
+
   var NAV = [
     ['home', 'Главная', 'index.html'],
+    ['guides', 'Build a Boat', 'guides.html'],
     ['boats', 'Лодки', 'boats.html'],
     ['best', 'Лучшие работы', 'best.html'],
     ['support', 'Поддержка', '#support']
@@ -206,6 +245,7 @@
 
   window.IB = {
     sb: sb, state: state, h: h, logo: logo, toast: toast, errText: errText,
-    fmtDate: fmtDate, imageUrl: imageUrl, modal: modal, init: init
+    fmtDate: fmtDate, imageUrl: imageUrl, modal: modal, init: init,
+    prepareImage: prepareImage, confirm: confirmBox, ytId: ytId
   };
 })();

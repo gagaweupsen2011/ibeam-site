@@ -177,6 +177,107 @@
     searchInput._t = setTimeout(loadUsers, 300);
   });
 
+  /* ---------- Build a Boat: схемы и туториалы ---------- */
+  var editing = null;
+  var gMsg = h('p', { class: 'note', role: 'status' });
+  var gKind = h('select', { class: 'inp', id: 'g-kind' },
+    h('option', { value: 'scheme', text: 'Схема лодки' }), h('option', { value: 'tutorial', text: 'Туториал' }));
+  var gTitle = h('input', { class: 'inp', id: 'g-title', type: 'text', maxlength: '80', placeholder: 'Например: Быстрая лодка для начинающих' });
+  var gDesc = h('textarea', { class: 'inp', id: 'g-desc', rows: '4', maxlength: '1000', placeholder: 'Коротко: из чего состоит и как строить (по желанию)' });
+  var gFile = h('input', { class: 'inp', id: 'g-file', type: 'file', accept: 'image/jpeg,image/png,image/webp', style: 'height:auto;padding:12px 14px' });
+  var gVideo = h('input', { class: 'inp', id: 'g-video', type: 'text', inputmode: 'url', placeholder: 'https://www.youtube.com/watch?v=...' });
+  var gClear = h('input', { type: 'checkbox', id: 'g-clear' });
+  var gClearRow = h('div', { class: 'check', hidden: true }, gClear, h('label', { for: 'g-clear', text: 'Убрать текущее фото' }));
+  var gSave = h('button', { class: 'btn btn-fill', type: 'submit', text: 'Добавить на сайт' });
+  var gCancel = h('button', { class: 'btn btn-ghost', type: 'button', text: 'Отменить изменение', hidden: true, onclick: function () { resetGuideForm(); } });
+  var gList = h('div', { class: 'stack' });
+
+  var gForm = h('form', { class: 'card pad', novalidate: true, style: 'max-width:640px;gap:16px' },
+    h('div', { class: 'field' }, h('label', { class: 'lbl', for: 'g-kind', text: 'Раздел' }), gKind),
+    h('div', { class: 'field' }, h('label', { class: 'lbl', for: 'g-title', text: 'Название' }), gTitle),
+    h('div', { class: 'field' }, h('label', { class: 'lbl', for: 'g-desc', text: 'Описание' }), gDesc),
+    h('div', { class: 'field' }, h('label', { class: 'lbl', for: 'g-file', text: 'Фото или картинка схемы (JPG, PNG, WebP)' }), gFile, gClearRow),
+    h('div', { class: 'field' }, h('label', { class: 'lbl', for: 'g-video', text: 'Ссылка на видео YouTube (по желанию)' }), gVideo),
+    h('p', { class: 'muted', text: 'Нужно хотя бы одно: фото или видео. Если указать оба, сверху покажется видео, а схема откроется кнопкой.' }),
+    gMsg,
+    h('div', { class: 'row' }, gSave, gCancel));
+
+  function resetGuideForm() {
+    editing = null;
+    gKind.value = 'scheme'; gTitle.value = ''; gDesc.value = ''; gFile.value = ''; gVideo.value = ''; gClear.checked = false;
+    gClearRow.hidden = true; gCancel.hidden = true; gSave.textContent = 'Добавить на сайт'; gMsg.textContent = '';
+  }
+
+  function startEdit(g) {
+    editing = g;
+    gKind.value = g.kind; gTitle.value = g.title; gDesc.value = g.description || '';
+    gFile.value = ''; gClear.checked = false; gClearRow.hidden = !g.image_path;
+    gVideo.value = g.video_id ? 'https://www.youtube.com/watch?v=' + g.video_id : '';
+    gSave.textContent = 'Сохранить изменения'; gCancel.hidden = false; gMsg.textContent = '';
+    gForm.scrollIntoView({ block: 'start' });
+    gTitle.focus();
+  }
+
+  gForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    gMsg.textContent = '';
+    var title = gTitle.value.trim();
+    if (title.length < 2) { gMsg.textContent = 'Укажи название (от 2 символов).'; return; }
+    var raw = gVideo.value.trim();
+    var vid = raw ? IB.ytId(raw) : null;
+    if (raw && !vid) { gMsg.textContent = 'Не похоже на ссылку YouTube. Скопируй адрес ролика из браузера.'; return; }
+    var f = gFile.files[0];
+    var keep = !!(editing && editing.image_path && !gClear.checked && !f);
+    if (!f && !keep && !vid) { gMsg.textContent = 'Добавь фото или ссылку на видео.'; return; }
+    gSave.disabled = true;
+    try {
+      var path = keep ? editing.image_path : null;
+      if (f) {
+        var blob = await IB.prepareImage(f);
+        var id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2);
+        path = st.user.id + '/guide-' + id + '.jpg';
+        var up = await sb.storage.from('boats').upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+        if (up.error) throw up.error;
+      }
+      var row = { kind: gKind.value, title: title, description: gDesc.value.trim() || null, image_path: path, video_id: vid };
+      var r = editing ? await sb.from('guides').update(row).eq('id', editing.id) : await sb.from('guides').insert(row);
+      if (r.error) throw r.error;
+      toast(editing ? 'Изменения сохранены.' : 'Добавлено на сайт.');
+      resetGuideForm();
+      loadGuides();
+    } catch (err) {
+      gMsg.textContent = errText(err);
+    }
+    gSave.disabled = false;
+  });
+
+  async function loadGuides() {
+    var r = await sb.from('guides').select('*').order('created_at', { ascending: false }).limit(100);
+    if (r.error) { gList.replaceChildren(h('p', { class: 'note', text: errText(r.error) })); return; }
+    if (!r.data.length) { gList.replaceChildren(h('p', { class: 'note', text: 'Пока ничего не добавлено.' })); return; }
+    gList.replaceChildren.apply(gList, r.data.map(function (g) {
+      return h('div', { class: 'card user-row' },
+        h('div', { class: 'who' },
+          h('span', { style: 'font-weight:600;font-size:17px', text: g.title }),
+          h('span', { class: 'muted', text: (g.kind === 'scheme' ? 'Схема' : 'Туториал') + (g.video_id ? ' · видео' : '') + (g.image_path ? ' · фото' : '') })),
+        h('div', { class: 'row' },
+          h('a', { class: 'btn btn-ghost btn-sm', href: 'guides.html#' + (g.kind === 'scheme' ? 'schemes' : 'tutorials'), text: 'На сайте' }),
+          h('button', { class: 'btn btn-ghost btn-sm', type: 'button', text: 'Изменить', onclick: function () { startEdit(g); } }),
+          h('button', { class: 'btn btn-ghost btn-sm', type: 'button', text: 'Удалить', onclick: function () { removeGuide(g); } })));
+    }));
+  }
+
+  async function removeGuide(g) {
+    var ok = await IB.confirm('Удалить «' + g.title + '» с сайта?', 'Да, удалить');
+    if (!ok) return;
+    var r = await sb.from('guides').delete().eq('id', g.id);
+    if (r.error) { toast(errText(r.error)); return; }
+    if (g.image_path) { try { await sb.storage.from('boats').remove([g.image_path]); } catch (e) { /* файл уберём позже */ } }
+    toast('Удалено.');
+    if (editing && editing.id === g.id) resetGuideForm();
+    loadGuides();
+  }
+
   /* ---------- Настройки ---------- */
   var setBox = h('div', { class: 'stack', style: 'max-width:900px' });
   var SET = [
@@ -224,7 +325,11 @@
     h('section', { class: 'stack', style: 'max-width:760px;gap:14px' },
       h('h1', { class: 'page-title', text: 'Панель администратора' }),
       h('p', { class: 'lead', text: 'Сайт сам пропускает чистые фото и скрывает спорные. Тебе остаётся выбрать лучшую работу недели и разобрать короткую очередь.' }),
-      h('div', { class: 'row' }, h('span', { class: 'pill pill-demo', text: isOwner ? 'Ты владелец сайта' : 'Ты администратор' }))),
+      h('div', { class: 'row' },
+        h('span', { class: 'pill pill-demo', text: isOwner ? 'Ты владелец сайта' : 'Ты администратор' }),
+        h('a', { class: 'linkbtn', style: 'color:var(--ink)', href: '#guides', text: 'Build a Boat' }),
+        h('a', { class: 'linkbtn', style: 'color:var(--ink)', href: '#mod', text: 'Модерация' }),
+        h('a', { class: 'linkbtn', style: 'color:var(--ink)', href: '#users', text: 'Пользователи' }))),
 
     section('choice', 'Лучшая работа недели',
       'В воскресенье в 06:00 по Москве сайт фиксирует топ-5 и отправляет авторам уведомление «Выбираем лучшую работу». Ты выбираешь одну из пяти: она получает рамку на сайте и попадает на страницу «Лучшие работы».',
@@ -238,6 +343,10 @@
     section('mod', 'Модерация', 'Сюда попадают только спорные случаи: жалобы и первые фото новых участников.',
       h('div', null, modCount), modBox),
 
+    section('guides', 'Build a Boat: схемы и туториалы',
+      'Добавляй схемы лодок и туториалы: фото, картинку схемы и ссылку на видео YouTube. Запись сразу появляется на странице «Build a Boat».',
+      gForm, gList),
+
     section('users', 'Пользователи', isOwner
       ? 'Ты владелец: можешь назначать и снимать админов. Админ видит эту панель, но других админов назначать не может.'
       : 'Здесь можно найти пользователя и заблокировать нарушителя. Назначать админов может только владелец.',
@@ -247,5 +356,5 @@
     section('settings', 'Автоматика', 'Чем больше настроено, тем реже нужно заходить: достаточно раза в день.', setBox)
   );
 
-  loadFinal(); loadMod(); loadUsers(); loadSettings();
+  loadFinal(); loadMod(); loadGuides(); loadUsers(); loadSettings();
 })();

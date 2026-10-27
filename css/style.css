@@ -184,3 +184,24 @@ dialog::backdrop { background: rgba(32, 30, 36, .65); }
 @media (prefers-reduced-motion: reduce) {
   * { scroll-behavior: auto !important; transition: none !important; animation: none !important; }
 }
+
+/* Build a Boat: фото, схемы и ролики */
+.grid-wide { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
+.desc { white-space: pre-line; color: var(--soft); overflow-wrap: anywhere; }
+.cardimg.contain img { object-fit: contain; }
+.img-btn { border: 0; padding: 0; cursor: zoom-in; }
+.video-thumb { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; padding: 0; border: 0; border-radius: 6px; overflow: hidden; background: var(--slate); cursor: pointer; }
+.video-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.video-thumb .play { position: absolute; left: 50%; top: 50%; width: 68px; height: 68px; transform: translate(-50%, -50%); border-radius: 50%; background: rgba(47, 45, 52, .88); display: flex; align-items: center; justify-content: center; }
+.video-thumb .play::before { content: ""; margin-left: 6px; border-left: 20px solid var(--light); border-top: 12px solid transparent; border-bottom: 12px solid transparent; }
+.video-thumb:hover .play { background: var(--deep); }
+.video-frame { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; border-radius: 6px; background: #000; }
+textarea.inp { height: auto; padding: 12px 14px; line-height: 1.5; resize: vertical; }
+select.inp { padding-right: 10px; }
+.check { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.check input { width: 22px; height: 22px; accent-color: var(--lav); }
+
+/* Вкладки прямо на светлом фоне страницы */
+.tabs-light .tab { border-color: var(--ink, #454249); color: var(--ink, #454249); }
+.tabs-light .tab:hover { background: rgba(69,66,73,.12); }
+.tabs-light .tab[aria-selected="true"] { background: var(--ink, #454249); border-color: var(--ink, #454249); color: #ECEAF2; }

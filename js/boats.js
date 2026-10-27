@@ -134,23 +134,12 @@
   }
 
   async function removeBoat(b) {
-    var ok = await askConfirm('Удалить лодку «' + b.title + '»?');
+    var ok = await IB.confirm('Удалить лодку «' + b.title + '»?', 'Да, удалить');
     if (!ok) return;
     var r = await sb.from('boats').delete().eq('id', b.id);
     if (r.error) { toast(errText(r.error)); return; }
     toast('Лодка удалена.');
     load();
-  }
-
-  function askConfirm(text) {
-    return new Promise(function (resolve) {
-      var dlg = IB.modal('Подтверди',
-        h('p', { text: text }),
-        h('div', { class: 'row', style: 'margin-top:16px' },
-          h('button', { class: 'btn btn-fill', type: 'button', text: 'Да, удалить', onclick: function () { resolve(true); dlg.close(); } }),
-          h('button', { class: 'btn btn-ghost', type: 'button', text: 'Отмена', onclick: function () { dlg.close(); } })));
-      dlg.addEventListener('close', function () { resolve(false); });
-    });
   }
 
   async function openComments(b) {
@@ -196,23 +185,7 @@
     refresh();
   }
 
-  /* Сжатие фото на устройстве: убирает данные съёмки (EXIF) и ужимает размер */
-  async function prepare(file) {
-    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error('Подходят только JPG, PNG или WebP.');
-    if (file.size > 20 * 1024 * 1024) throw new Error('Файл слишком большой. Выбери фото до 20 МБ.');
-    var bmp = await createImageBitmap(file);
-    var k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
-    var c = document.createElement('canvas');
-    c.width = Math.max(1, Math.round(bmp.width * k));
-    c.height = Math.max(1, Math.round(bmp.height * k));
-    var ctx = c.getContext('2d');
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, c.width, c.height);
-    ctx.drawImage(bmp, 0, 0, c.width, c.height);
-    var blob = await new Promise(function (res) { c.toBlob(res, 'image/jpeg', 0.85); });
-    if (!blob || blob.size > 5 * 1024 * 1024) throw new Error('Не удалось сжать фото до 5 МБ. Выбери другое.');
-    return blob;
-  }
+  var prepare = IB.prepareImage;
 
   function openUpload() {
     if (!me) { needLogin('Войди, чтобы добавить фото.'); return; }
